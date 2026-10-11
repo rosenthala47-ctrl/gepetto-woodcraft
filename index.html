@@ -38,6 +38,7 @@
     </a>
     <nav class="main-nav" aria-label="ניווט ראשי">
       <a href="#about">הסיפור שלנו</a>
+      <a href="#categories">המוצרים שלנו</a>
       <a href="#gallery">עבודות</a>
       <a href="#prices">מחירון</a>
       <a href="#contact">יצירת קשר</a>
@@ -90,6 +91,16 @@
         <li><span class="hl-num">✎</span><span>עיצוב אישי לכל מזוזה</span></li>
         <li><span class="hl-num">🎁</span><span>אריזת מתנה מוקפדת לכל הזמנה</span></li>
       </ul>
+    </div>
+  </section>
+
+  <!-- ============ CATEGORIES ============ -->
+  <section class="section" id="categories">
+    <div class="section-inner">
+      <p class="eyebrow">המוצרים שלנו</p>
+      <h2>מה אפשר להזמין מהסדנה</h2>
+      <p class="section-note">לחיצה על קטגוריה פותחת הודעת וואטסאפ עם פנייה על אותו מוצר.</p>
+      <ul class="category-grid" id="category-grid"></ul>
     </div>
   </section>
 
@@ -173,6 +184,7 @@
     <nav class="admin-nav">
       <button class="admin-nav-btn active" data-panel="overview">סקירה כללית</button>
       <button class="admin-nav-btn" data-panel="content">תוכן ולוגו</button>
+      <button class="admin-nav-btn" data-panel="categories">קטגוריות מוצרים</button>
       <button class="admin-nav-btn" data-panel="gallery">גלריית עבודות</button>
       <button class="admin-nav-btn" data-panel="prices">מחירון</button>
       <button class="admin-nav-btn" data-panel="settings">סנכרון וסיסמה</button>
@@ -243,6 +255,14 @@
       <p class="hint">השורות הקטנות שמופיעות לצד הסיפור. הסמל יכול להיות אימוג'י, מספר או סימן. נשמר אוטומטית.</p>
       <ul class="admin-highlights-list" id="admin-highlights-list"></ul>
       <button type="button" class="btn btn-cta" id="highlight-add-btn">+ הוספת נקודה</button>
+    </section>
+
+    <!-- CATEGORIES -->
+    <section class="admin-panel" data-panel="categories">
+      <h2>קטגוריות מוצרים</h2>
+      <p class="hint">הקטגוריות שמוצגות באתר תחת "המוצרים שלנו". לחיצה של לקוח על קטגוריה פותחת לו וואטסאפ עם פנייה על אותו מוצר, והפנייה נרשמת בסקירה הכללית עם שם הקטגוריה. נשמר אוטומטית.</p>
+      <ul class="admin-categories-list" id="admin-categories-list"></ul>
+      <button type="button" class="btn btn-cta" id="category-add-btn">+ הוספת קטגוריה</button>
     </section>
 
     <!-- GALLERY -->

@@ -7,6 +7,7 @@ const CLOUD_CFG_KEY = 'woodcraftSite_cloudConfig_v1';
 const SESSION_ADMIN_KEY = 'woodcraftSite_adminSession_v1';
 const DEFAULT_ADMIN_PASSWORD = '6767';
 const LEADS_LOCAL_CAP = 300;
+const LEAD_CATEGORY_PREFIX = 'category:';
 
 // Ships with the deployed site once the business's own Firebase project is set up, so every
 // visitor's browser connects automatically to the same shared database - no per-device setup.
@@ -30,6 +31,13 @@ const DEFAULT_STATE = {
       { id: 'h1', icon: '100%', text: 'עבודת יד, ללא שתי יצירות זהות' },
       { id: 'h2', icon: '✎', text: 'עיצוב אישי לכל מזוזה' },
       { id: 'h3', icon: '🎁', text: 'אריזת מתנה מוקפדת לכל הזמנה' },
+    ],
+    categories: [
+      { id: 'c1', name: 'בתי מזוזות' },
+      { id: 'c2', name: 'בוצ\'רים' },
+      { id: 'c3', name: 'קרשי חיתוך' },
+      { id: 'c4', name: 'שולחנות סלון' },
+      { id: 'c5', name: 'מעמד ליין' },
     ],
     phone: '0556850155',
     address: '',
@@ -161,6 +169,7 @@ function renderSite() {
   } else { igRow.hidden = true; }
 
   renderHighlights();
+  renderCategories();
   renderGallery();
   renderPrices();
   updateLeadButtonsState();
@@ -174,6 +183,32 @@ function renderHighlights() {
     li.innerHTML = `<span class="hl-num">${escapeHtml(h.icon || '')}</span><span>${escapeHtml(h.text || '')}</span>`;
     list.appendChild(li);
   });
+}
+
+function renderCategories() {
+  const grid = document.getElementById('category-grid');
+  grid.innerHTML = '';
+  (state.site.categories || []).forEach(c => {
+    if (!c.name) return;
+    const li = document.createElement('li');
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'category-card';
+    btn.innerHTML = `<span>${escapeHtml(c.name)}</span><span class="category-arrow" aria-hidden="true">‹</span>`;
+    btn.addEventListener('click', () => openCategoryInquiry(c.name));
+    li.appendChild(btn);
+    grid.appendChild(li);
+  });
+}
+
+function openCategoryInquiry(name) {
+  if (!normalizedPhoneDigits(state.site.phone)) {
+    showToast('מספר הוואטסאפ עדיין לא הוגדר. יש להגדיר אותו בלוח הניהול (הגדרות → פרטי התקשרות).');
+    return;
+  }
+  const url = buildWhatsAppUrl(`שלום! ראיתי את האתר של ${state.site.businessName} ואשמח לשמוע פרטים על ${name}.`);
+  logLead(LEAD_CATEGORY_PREFIX + name);
+  window.open(url, '_blank', 'noopener');
 }
 
 function setRow(rowId, spanId, value, fmt) {
@@ -354,6 +389,7 @@ function renderAdminAll() {
   renderAdminOverview();
   renderAdminContentForm();
   renderAdminHighlights();
+  renderAdminCategories();
   renderAdminGalleryList();
   renderAdminPriceList();
   renderCloudPanel();
@@ -377,7 +413,11 @@ function renderAdminOverview() {
   recent.forEach(l => {
     const li = document.createElement('li');
     const date = new Date(l.ts);
-    li.innerHTML = `<span>פנייה מ${placeLabels[l.place] || l.place}</span><time>${date.toLocaleDateString('he-IL')} ${date.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })}</time>`;
+    const place = l.place || '';
+    const label = place.startsWith(LEAD_CATEGORY_PREFIX)
+      ? `פנייה על ${place.slice(LEAD_CATEGORY_PREFIX.length)}`
+      : `פנייה מ${placeLabels[place] || place}`;
+    li.innerHTML = `<span>${escapeHtml(label)}</span><time>${date.toLocaleDateString('he-IL')} ${date.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })}</time>`;
     list.appendChild(li);
   });
 }
@@ -432,6 +472,50 @@ function renderAdminHighlights() {
     list.appendChild(li);
   });
 }
+
+function renderAdminCategories() {
+  const list = document.getElementById('admin-categories-list');
+  list.innerHTML = '';
+  (state.site.categories || []).forEach((item, idx) => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <input type="text" value="${escapeHtml(item.name || '')}" placeholder="שם הקטגוריה" data-role="name">
+      <div class="row-actions">
+        <button type="button" data-role="up" title="הזזה למעלה" ${idx === 0 ? 'disabled' : ''}>↑</button>
+        <button type="button" data-role="down" title="הזזה למטה" ${idx === state.site.categories.length - 1 ? 'disabled' : ''}>↓</button>
+        <button type="button" data-role="delete" class="danger" title="מחיקה">✕</button>
+      </div>`;
+    li.querySelector('[data-role="name"]').addEventListener('input', e => {
+      item.name = e.target.value; saveState(); renderCategories(); cloudWriteSiteDebounced();
+    });
+    li.querySelector('[data-role="delete"]').addEventListener('click', () => {
+      state.site.categories.splice(idx, 1);
+      saveState(); renderAdminCategories(); renderCategories(); cloudWriteSite();
+    });
+    li.querySelector('[data-role="up"]').addEventListener('click', () => {
+      if (idx === 0) return;
+      const cs = state.site.categories;
+      [cs[idx - 1], cs[idx]] = [cs[idx], cs[idx - 1]];
+      saveState(); renderAdminCategories(); renderCategories(); cloudWriteSite();
+    });
+    li.querySelector('[data-role="down"]').addEventListener('click', () => {
+      const cs = state.site.categories;
+      if (idx === cs.length - 1) return;
+      [cs[idx + 1], cs[idx]] = [cs[idx], cs[idx + 1]];
+      saveState(); renderAdminCategories(); renderCategories(); cloudWriteSite();
+    });
+    list.appendChild(li);
+  });
+}
+
+document.getElementById('category-add-btn').addEventListener('click', () => {
+  if (!Array.isArray(state.site.categories)) state.site.categories = [];
+  state.site.categories.push({ id: uid('c'), name: 'קטגוריה חדשה' });
+  saveState();
+  renderAdminCategories();
+  renderCategories();
+  cloudWriteSite();
+});
 
 document.getElementById('highlight-add-btn').addEventListener('click', () => {
   if (!Array.isArray(state.site.highlights)) state.site.highlights = [];
