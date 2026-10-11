@@ -362,6 +362,16 @@ button { font-family: inherit; }
   padding: .55em .7em; border-radius: 6px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); font-family: inherit; width: 100%;
 }
 
+.admin-highlights-list { list-style: none; margin: 0 0 1rem; padding: 0; display: grid; gap: .9rem; }
+.admin-highlights-list li {
+  display: grid; grid-template-columns: 90px 1fr auto; gap: .7rem; align-items: center;
+  background: var(--card-bg); border: 1px solid var(--line); border-radius: var(--radius); padding: .8rem;
+}
+.admin-highlights-list input {
+  padding: .55em .7em; border-radius: 6px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); font-family: inherit; width: 100%;
+}
+.hl-icon-input { text-align: center; font-size: 1.05rem; }
+
 .cloud-status-ok { color: var(--sage); font-weight: 700; }
 #cloud-config-input { font-family: ui-monospace, monospace; font-size: .82rem; }
 
@@ -385,4 +395,6 @@ button { font-family: inherit; }
   .header-cta span { display: none; }
   .nav-toggle { display: flex; }
   .admin-gallery-row-top, .admin-price-list li { grid-template-columns: 1fr; }
+  .admin-highlights-list li { grid-template-columns: 70px 1fr; }
+  .admin-highlights-list .row-actions { grid-column: 1 / -1; }
 }

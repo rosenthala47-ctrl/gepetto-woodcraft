@@ -81,11 +81,11 @@
   <section class="section" id="about">
     <div class="section-inner about-grid">
       <div class="about-copy">
-        <p class="eyebrow">הסיפור שלנו</p>
-        <h2>כל גזע עץ מספר סיפור אחר</h2>
+        <p class="eyebrow" id="about-eyebrow">הסיפור שלנו</p>
+        <h2 id="about-heading">כל גזע עץ מספר סיפור אחר</h2>
         <p class="about-text" id="about-text">כמו ג'פטו שנפח חיים בכל חתיכת עץ, כל מזוזה כאן נולדת משילוב של עץ זית טבעי ואפוקסי צבעוני, כך שכל פריט הוא יצירה יחידה שלא תיוצר פעם נוספת. בין הדגמים אפשר למצוא עיצובים בהשראת מפת ארץ ישראל וגימורי פנינה ותכלת. כל מזוזה נבנית ונגמרת ביד, מהבחירה של פלח העץ ועד הליטוש האחרון.</p>
       </div>
-      <ul class="about-highlights">
+      <ul class="about-highlights" id="about-highlights">
         <li><span class="hl-num">100%</span><span>עבודת יד, ללא שתי יצירות זהות</span></li>
         <li><span class="hl-num">✎</span><span>עיצוב אישי לכל מזוזה</span></li>
         <li><span class="hl-num">🎁</span><span>אריזת מתנה מוקפדת לכל הזמנה</span></li>
@@ -219,6 +219,9 @@
         <label>משפט פתיחה (מתחת לשם, בעמוד הבית)
           <textarea id="f-tagline" rows="2" required></textarea>
         </label>
+        <label>כותרת אזור "הסיפור שלנו"
+          <input type="text" id="f-about-heading">
+        </label>
         <label>על העסק
           <textarea id="f-about" rows="6" required></textarea>
         </label>
@@ -235,6 +238,11 @@
         <button type="submit" class="btn btn-cta">שמירת תוכן</button>
         <span class="save-confirm" id="content-save-confirm" hidden>✓ נשמר</span>
       </form>
+
+      <h2>נקודות בולטות (ליד "הסיפור שלנו")</h2>
+      <p class="hint">השורות הקטנות שמופיעות לצד הסיפור. הסמל יכול להיות אימוג'י, מספר או סימן. נשמר אוטומטית.</p>
+      <ul class="admin-highlights-list" id="admin-highlights-list"></ul>
+      <button type="button" class="btn btn-cta" id="highlight-add-btn">+ הוספת נקודה</button>
     </section>
 
     <!-- GALLERY -->

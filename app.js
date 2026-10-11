@@ -25,6 +25,12 @@ const DEFAULT_STATE = {
     businessName: 'ג\'פטו אומנות בעץ',
     tagline: 'מזוזות ייחודיות משילוב עץ זית ואפוקסי — כל יצירה היא גזע אחר, סיפור אחר, מזוזה אחת בלבד בעולם.',
     about: 'כמו ג\'פטו שנפח חיים בכל חתיכת עץ, כל מזוזה כאן נולדת משילוב של עץ זית טבעי ואפוקסי צבעוני, כך שכל פריט הוא יצירה יחידה שלא תיוצר פעם נוספת. בין הדגמים אפשר למצוא עיצובים בהשראת מפת ארץ ישראל וגימורי פנינה ותכלת. כל מזוזה נבנית ונגמרת ביד, מהבחירה של פלח העץ ועד הליטוש האחרון.',
+    aboutHeading: 'כל גזע עץ מספר סיפור אחר',
+    highlights: [
+      { id: 'h1', icon: '100%', text: 'עבודת יד, ללא שתי יצירות זהות' },
+      { id: 'h2', icon: '✎', text: 'עיצוב אישי לכל מזוזה' },
+      { id: 'h3', icon: '🎁', text: 'אריזת מתנה מוקפדת לכל הזמנה' },
+    ],
     phone: '0556850155',
     address: '',
     hours: '',
@@ -122,6 +128,7 @@ function renderSite() {
   document.getElementById('brand-name-header').textContent = s.businessName;
   document.getElementById('hero-name').textContent = s.businessName;
   document.getElementById('hero-tagline').textContent = s.tagline;
+  document.getElementById('about-heading').textContent = s.aboutHeading || '';
   document.getElementById('about-text').textContent = s.about;
   document.getElementById('footer-name').textContent = '© ' + new Date().getFullYear() + ' ' + s.businessName;
 
@@ -153,9 +160,20 @@ function renderSite() {
     igRow.hidden = false; igLink.href = s.instagram; igLink.textContent = 'עקבו אחרינו באינסטגרם';
   } else { igRow.hidden = true; }
 
+  renderHighlights();
   renderGallery();
   renderPrices();
   updateLeadButtonsState();
+}
+
+function renderHighlights() {
+  const list = document.getElementById('about-highlights');
+  list.innerHTML = '';
+  (state.site.highlights || []).forEach(h => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="hl-num">${escapeHtml(h.icon || '')}</span><span>${escapeHtml(h.text || '')}</span>`;
+    list.appendChild(li);
+  });
 }
 
 function setRow(rowId, spanId, value, fmt) {
@@ -335,6 +353,7 @@ function renderAdminAll() {
   document.getElementById('admin-brand-name').textContent = state.site.businessName;
   renderAdminOverview();
   renderAdminContentForm();
+  renderAdminHighlights();
   renderAdminGalleryList();
   renderAdminPriceList();
   renderCloudPanel();
@@ -366,6 +385,7 @@ function renderAdminOverview() {
 function renderAdminContentForm() {
   document.getElementById('f-business-name').value = state.site.businessName;
   document.getElementById('f-tagline').value = state.site.tagline;
+  document.getElementById('f-about-heading').value = state.site.aboutHeading || '';
   document.getElementById('f-about').value = state.site.about;
   document.getElementById('f-phone').value = state.site.phone;
   document.getElementById('f-address').value = state.site.address;
@@ -377,10 +397,56 @@ function renderAdminContentForm() {
   else { preview.hidden = true; fallback.hidden = false; }
 }
 
+function renderAdminHighlights() {
+  const list = document.getElementById('admin-highlights-list');
+  list.innerHTML = '';
+  (state.site.highlights || []).forEach((item, idx) => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <input type="text" class="hl-icon-input" value="${escapeHtml(item.icon || '')}" placeholder="סמל" data-role="icon">
+      <input type="text" value="${escapeHtml(item.text || '')}" placeholder="טקסט הנקודה" data-role="text">
+      <div class="row-actions">
+        <button type="button" data-role="up" title="הזזה למעלה" ${idx === 0 ? 'disabled' : ''}>↑</button>
+        <button type="button" data-role="down" title="הזזה למטה" ${idx === state.site.highlights.length - 1 ? 'disabled' : ''}>↓</button>
+        <button type="button" data-role="delete" class="danger" title="מחיקה">✕</button>
+      </div>`;
+    const commit = () => { saveState(); renderHighlights(); cloudWriteSiteDebounced(); };
+    li.querySelector('[data-role="icon"]').addEventListener('input', e => { item.icon = e.target.value; commit(); });
+    li.querySelector('[data-role="text"]').addEventListener('input', e => { item.text = e.target.value; commit(); });
+    li.querySelector('[data-role="delete"]').addEventListener('click', () => {
+      state.site.highlights.splice(idx, 1);
+      saveState(); renderAdminHighlights(); renderHighlights(); cloudWriteSite();
+    });
+    li.querySelector('[data-role="up"]').addEventListener('click', () => {
+      if (idx === 0) return;
+      const hs = state.site.highlights;
+      [hs[idx - 1], hs[idx]] = [hs[idx], hs[idx - 1]];
+      saveState(); renderAdminHighlights(); renderHighlights(); cloudWriteSite();
+    });
+    li.querySelector('[data-role="down"]').addEventListener('click', () => {
+      const hs = state.site.highlights;
+      if (idx === hs.length - 1) return;
+      [hs[idx + 1], hs[idx]] = [hs[idx], hs[idx + 1]];
+      saveState(); renderAdminHighlights(); renderHighlights(); cloudWriteSite();
+    });
+    list.appendChild(li);
+  });
+}
+
+document.getElementById('highlight-add-btn').addEventListener('click', () => {
+  if (!Array.isArray(state.site.highlights)) state.site.highlights = [];
+  state.site.highlights.push({ id: uid('h'), icon: '★', text: 'נקודה חדשה' });
+  saveState();
+  renderAdminHighlights();
+  renderHighlights();
+  cloudWriteSite();
+});
+
 document.getElementById('content-form').addEventListener('submit', e => {
   e.preventDefault();
   state.site.businessName = document.getElementById('f-business-name').value.trim() || DEFAULT_STATE.site.businessName;
   state.site.tagline = document.getElementById('f-tagline').value.trim();
+  state.site.aboutHeading = document.getElementById('f-about-heading').value.trim();
   state.site.about = document.getElementById('f-about').value.trim();
   saveState();
   renderSite();
@@ -703,6 +769,13 @@ function cloudWriteSite() {
   if (!cloud.active || cloud.applyingRemote) return;
   const { doc, setDoc } = cloud.fns;
   setDoc(doc(cloud.db, 'content', 'site'), siteDocPayload()).catch(e => console.error('cloudWriteSite', e));
+}
+
+// The site doc carries the logo as a data URI, so don't resend it on every keystroke.
+let siteWriteTimer = null;
+function cloudWriteSiteDebounced() {
+  clearTimeout(siteWriteTimer);
+  siteWriteTimer = setTimeout(cloudWriteSite, 700);
 }
 function cloudWritePriceItem(item) {
   if (!cloud.active) return;
