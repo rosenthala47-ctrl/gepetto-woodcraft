@@ -36,9 +36,14 @@
       <span class="brand-logo-fallback" id="brand-logo-fallback" hidden>גא</span>
       <span class="brand-name" id="brand-name-header">ג'פטו אומנות בעץ</span>
     </a>
-    <nav class="main-nav" aria-label="ניווט ראשי">
-      <a href="#about">הסיפור שלנו</a>
-      <a href="#categories">המוצרים שלנו</a>
+    <nav class="main-nav" id="main-nav" aria-label="ניווט ראשי">
+      <a href="#about">אודות</a>
+      <div class="nav-group">
+        <button type="button" class="nav-group-toggle" id="nav-shop-toggle" aria-expanded="false" aria-controls="nav-category-list">
+          <span>חנות</span><span class="nav-caret" aria-hidden="true">▾</span>
+        </button>
+        <ul class="nav-sublist" id="nav-category-list" hidden></ul>
+      </div>
       <a href="#gallery">עבודות</a>
       <a href="#prices">מחירון</a>
       <a href="#contact">יצירת קשר</a>
@@ -91,16 +96,6 @@
         <li><span class="hl-num">✎</span><span>עיצוב אישי לכל מזוזה</span></li>
         <li><span class="hl-num">🎁</span><span>אריזת מתנה מוקפדת לכל הזמנה</span></li>
       </ul>
-    </div>
-  </section>
-
-  <!-- ============ CATEGORIES ============ -->
-  <section class="section" id="categories">
-    <div class="section-inner">
-      <p class="eyebrow">המוצרים שלנו</p>
-      <h2>מה אפשר להזמין מהסדנה</h2>
-      <p class="section-note">לחיצה על קטגוריה פותחת הודעת וואטסאפ עם פנייה על אותו מוצר.</p>
-      <ul class="category-grid" id="category-grid"></ul>
     </div>
   </section>
 

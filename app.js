@@ -186,19 +186,22 @@ function renderHighlights() {
 }
 
 function renderCategories() {
-  const grid = document.getElementById('category-grid');
-  grid.innerHTML = '';
-  (state.site.categories || []).forEach(c => {
-    if (!c.name) return;
+  const list = document.getElementById('nav-category-list');
+  list.innerHTML = '';
+  const names = (state.site.categories || []).filter(c => c.name);
+  names.forEach(c => {
     const li = document.createElement('li');
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'category-card';
-    btn.innerHTML = `<span>${escapeHtml(c.name)}</span><span class="category-arrow" aria-hidden="true">‹</span>`;
-    btn.addEventListener('click', () => openCategoryInquiry(c.name));
+    btn.textContent = c.name;
+    btn.addEventListener('click', () => {
+      closeNav();
+      openCategoryInquiry(c.name);
+    });
     li.appendChild(btn);
-    grid.appendChild(li);
+    list.appendChild(li);
   });
+  document.getElementById('nav-shop-toggle').hidden = names.length === 0;
 }
 
 function openCategoryInquiry(name) {
@@ -940,15 +943,40 @@ async function initCloud() {
   catch (e) { console.error('auto cloud connect failed', e); }
 }
 
-// ---------------- Nav toggle ----------------
+// ---------------- Nav ----------------
+function setShopMenuOpen(open) {
+  document.getElementById('nav-shop-toggle').setAttribute('aria-expanded', String(open));
+  document.getElementById('nav-category-list').hidden = !open;
+}
+
+function closeNav() {
+  document.getElementById('main-nav').classList.remove('open');
+  document.getElementById('nav-toggle').classList.remove('open');
+  document.getElementById('nav-toggle').setAttribute('aria-expanded', 'false');
+  setShopMenuOpen(false);
+}
+
 document.getElementById('nav-toggle').addEventListener('click', () => {
-  const nav = document.querySelector('.main-nav');
+  const nav = document.getElementById('main-nav');
   const open = nav.classList.toggle('open');
+  document.getElementById('nav-toggle').classList.toggle('open', open);
   document.getElementById('nav-toggle').setAttribute('aria-expanded', String(open));
+  if (!open) setShopMenuOpen(false);
 });
-document.querySelectorAll('.main-nav a').forEach(a => {
-  a.addEventListener('click', () => document.querySelector('.main-nav').classList.remove('open'));
+
+document.getElementById('nav-shop-toggle').addEventListener('click', e => {
+  e.stopPropagation();
+  const expanded = document.getElementById('nav-shop-toggle').getAttribute('aria-expanded') === 'true';
+  setShopMenuOpen(!expanded);
 });
+
+document.querySelectorAll('#main-nav a').forEach(a => a.addEventListener('click', closeNav));
+
+// On desktop the shop list is a floating dropdown, so dismiss it on an outside click or Escape.
+document.addEventListener('click', e => {
+  if (!e.target.closest('.nav-group')) setShopMenuOpen(false);
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeNav(); });
 
 // ---------------- Boot ----------------
 window.addEventListener('hashchange', handleRoute);
